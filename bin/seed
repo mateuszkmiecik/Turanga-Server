@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+"use strict";
+
+const MongoClient = require('mongodb').MongoClient;
+const config = require('../config/config');
+
+
+let mongoClient;
+
+MongoClient.connect(config.mongoDbUrl).then((mongo) => {
+
+    console.log('Dropping database');
+    mongoClient = mongo;
+    return mongoClient.dropDatabase().then(response => console.log('MongoDB response:', response));
+
+}).then(() => {
+
+    console.log('Inserting users');
+    let users = require('../seeds/users');
+    return mongoClient.collection('users').insertMany(users).then(response => console.log('Mongo response:', response));
+
+}).then(() => {
+
+    console.log('Inserting categories');
+    let categories = require('../seeds/categories');
+    return mongoClient.collection('categories').insertMany(categories).then(response => console.log('Mongo response:', response));
+
+}).then(() => {
+    process.exit(0);
+}).catch((err) => {
+    console.log(err);
+    process.exit(1);
+});
