@@ -1,5 +1,3 @@
-"use strict";
-
 const express = require('express');
 const ObjectId = require('mongodb').ObjectId;
 
@@ -31,7 +29,7 @@ module.exports = (mongoCollection) => {
 
     app.put('/:id', (req, res, next) => {
         let category = req.body;
-        if(!category){
+        if (!category) {
             return next({
                 status: 400,
                 message: 'No category send'

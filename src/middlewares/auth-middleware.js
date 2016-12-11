@@ -1,5 +1,3 @@
-"use strict";
-
 let jwt = require('jsonwebtoken');
 let secretKey = require('../../config/config').secret;
 
