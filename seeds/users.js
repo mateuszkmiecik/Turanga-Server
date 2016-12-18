@@ -1,10 +1,10 @@
 const crypto = require('crypto');
 
 function user(name) {
-    let md5 = crypto.createHash('md5');
+    let sha256 = crypto.createHash('sha256');
     return {
         username: name,
-        password: md5.update(name).digest('hex'),
+        password: sha256.update(name).digest('hex'),
         role: name == 'admin' ? 'ADMIN' : 'USER'
     }
 }

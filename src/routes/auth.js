@@ -23,9 +23,9 @@ module.exports = (mongoClient) => {
                     return next({status: 401, message: 'Invalid username or/and password.'})
                 }
 
-                let md5 = crypto.createHash('md5');
+                let sha256 = crypto.createHash('sha256');
 
-                if (userToAuthenticate.password != md5.update(usersData.password).digest('hex')) {
+                if (userToAuthenticate.password != sha256.update(usersData.password).digest('hex')) {
                     return next({status: 401, message: 'Invalid username or/and password.'})
                 }
 
