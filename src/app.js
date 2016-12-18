@@ -28,6 +28,19 @@ module.exports = (mongoClient) => {
     app.use('/api/tasks', restEndpoints(mongoClient.collection('tasks')));
     app.use('/api/databases', restEndpoints(mongoClient.collection('databases')));
 
+    app.post('/api/query', (req, res, next) => {
+        res.status(200).send({
+  "correct": Math.random() > 0.5,
+  "results": [{
+      "ACTOR_ID": "1",
+      "LAST_UPDATE": "2013-05-26 14:47:57.62",
+      "LAST_NAME": "Guiness",
+      "FIRST_NAME": "Penelope"
+    }],
+  "errorMessage": ""
+});
+    });
+
     // catch 404 and forward to error handler
     app.use(function (req, res, next) {
         var err = new Error('Not Found');
