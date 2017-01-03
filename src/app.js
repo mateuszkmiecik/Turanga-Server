@@ -41,10 +41,19 @@ module.exports = (mongoClient) => {
             method: 'post',
             body: req.body,
             json: true,
-            url: 'http://10.22.112.56:8081/query'
+            url: 'http://localhost:8081/query'
         };
         request.post(options).pipe(res);
     });
+
+    app.get('/api/dbs', (req, res, next) => {
+        let options = {
+            method: 'get',
+            url: 'http://localhost:8081/dbs'
+        };
+        request.get(options).pipe(res);
+    })
+
 
     // catch 404 and forward to error handler
     app.use(function (req, res, next) {
