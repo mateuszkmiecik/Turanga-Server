@@ -1,7 +1,9 @@
 let jwt = require('jsonwebtoken');
 let secretKey = require('../../config/config').secret;
 
-function middlewareWithStatus(status) {
+function middlewareWithStatus(opts) {
+    opts = opts || {};
+    const {status, allowedRoles = []} = opts;
     return (req, res, next) => {
         var token = req.body.token || req.query.token || req.headers['x-access-token'];
         req.token = token;
@@ -19,7 +21,19 @@ function middlewareWithStatus(status) {
                 } else {
                     // if everything is good, save to request for use in other routes
                     req.user = decoded;
-                    next();
+                    if (allowedRoles.length === 0) {
+                        next();
+                    } else {
+                        const userRole = decoded.role;
+                        if(allowedRoles.indexOf(userRole) > -1){
+                            next();
+                        } else {
+                            next({
+                                status: status || 403,
+                                message: 'Unauthorized.'
+                            });
+                        }
+                    }
                 }
             });
 

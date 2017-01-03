@@ -8,7 +8,7 @@ const authMiddleware = require('../middlewares/auth-middleware');
 module.exports = (mongoClient) => {
     let app = express();
 
-    app.get('/', authMiddleware.withStatus(401), (req, res, next) => {
+    app.get('/', authMiddleware.withStatus({status: 401}), (req, res, next) => {
         res.status(200).send(req.user);
     });
 

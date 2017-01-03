@@ -3,13 +3,14 @@ const logger = require('morgan');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const request = require('request')
+
+const restEndpoints = require('./helpers/restEndpoints');
+const authMiddleware = require('./middlewares/auth-middleware');
+const USER_ROLES = require('./constants').USER_ROLES;
 
 module.exports = (mongoClient) => {
     const app = express();
-
-    const restEndpoints = require('./helpers/restEndpoints')
-
-    const categoriesRoute = require('./routes/categories');
 
     app.use(logger('dev'));
     app.use(bodyParser.json());
@@ -23,22 +24,26 @@ module.exports = (mongoClient) => {
 
     app.use('/api/auth', require('./routes/auth')(mongoClient));
 
-    app.use('/api/users', restEndpoints(mongoClient.collection('users')));
-    app.use('/api/categories', categoriesRoute(mongoClient.collection('categories')));
+
+
+    app.use('/api/users', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}),  restEndpoints(mongoClient.collection('users')));
+    app.use('/api/groups', restEndpoints(mongoClient.collection('groups')));
+    app.use('/api/categories', require('./routes/categories')(mongoClient.collection('categories')));
     app.use('/api/tasks', restEndpoints(mongoClient.collection('tasks')));
+    app.use('/api/results', restEndpoints(mongoClient.collection('results')));
     app.use('/api/databases', restEndpoints(mongoClient.collection('databases')));
 
     app.post('/api/query', (req, res, next) => {
-        res.status(200).send({
-  "correct": Math.random() > 0.5,
-  "results": [{
-      "ACTOR_ID": "1",
-      "LAST_UPDATE": "2013-05-26 14:47:57.62",
-      "LAST_NAME": "Guiness",
-      "FIRST_NAME": "Penelope"
-    }],
-  "errorMessage": ""
-});
+        if(!req.body){
+            return res.status(400).send({message: 'Bad Request'});
+        }
+        let options = {
+            method: 'post',
+            body: req.body,
+            json: true,
+            url: 'http://10.22.112.56:8081/query'
+        };
+        request.post(options).pipe(res);
     });
 
     // catch 404 and forward to error handler
