@@ -45,16 +45,15 @@ const Group = {
 
 const Exam = {
     id: ObjectId,
-    categories: Array,
-    mode: String,
-    shouldShuffle: Boolean,
-    questionsLimit: Number,
-    timeLimit: Number
+    categoryMap: Array,
+    duration: Number,
+    examCode: Number
 };
 
 const Attempt = {
     id: ObjectId,
     dateStarted: Date,
+    examId: ObjectId,
     user: Object,
     tasks: Array,
     lastUpdate: Date,
