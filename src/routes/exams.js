@@ -29,7 +29,8 @@ module.exports = (mongoClient) => {
 
             let tasks = []
             results.forEach( val => {
-                (val.tasks.slice(0, categoryMap[val._id])).forEach( el => tasks.push(el))
+                if (req.body.shuffle) (shuffle(val.tasks).slice(0, categoryMap[val._id])).forEach( el => tasks.push(el))
+                else (val.tasks.slice(0, categoryMap[val._id])).forEach( el => tasks.push(el))
             })
 
             let exam = {"tasks": tasks}
@@ -69,6 +70,22 @@ module.exports = (mongoClient) => {
             res.status(200).end();
         }).catch(next);
     });
+
+    function shuffle(array) {
+        let counter = array.length;
+
+        while (counter > 0) {
+            let index = Math.floor(Math.random() * counter);
+
+            counter--;
+
+            let temp = array[counter];
+            array[counter] = array[index];
+            array[index] = temp;
+        }
+
+        return array;
+    }
 
 
     return app;
