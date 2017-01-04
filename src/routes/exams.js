@@ -50,7 +50,7 @@ module.exports = (mongoClient) => {
 
 
     app.get('/:id', (req, res, next) => {
-        mongoCollection.find({
+        examsCollection.find({
             _id: new ObjectId(req.params.id)
         }).toArray().then(result => {
             if (!result.length) {
