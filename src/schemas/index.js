@@ -68,4 +68,12 @@ const Result = {
     details: Object
 };
 
+const QueryRequest = {
+    query: String,
+    correctQuery: String,
+    forbiddenWords: Array,
+    requiredWords: Array,
+    dbDetails: Object
+};
+
 module.exports = {Database, Group, User, Category, Exercise, Exam, Attempt, Result}
