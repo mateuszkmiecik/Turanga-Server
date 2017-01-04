@@ -33,7 +33,7 @@ module.exports = (mongoClient) => {
                 else (val.tasks.slice(0, categoryMap[val._id])).forEach( el => tasks.push(el))
             })
 
-            let exam = {"tasks": tasks}
+            let exam = {"name":req.body.name, "description":req.body.desc, "tasks": tasks}
             exam.categories = results.map(({name}) => ({name}))
             exam.duration = req.body.duration
             exam.shuffle = req.body.shuffle
