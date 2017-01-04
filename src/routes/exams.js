@@ -62,5 +62,14 @@ module.exports = (mongoClient) => {
         })
     });
 
+    app.delete('/:id', (req, res, next) => {
+        examsCollection.deleteOne({
+            _id: new ObjectId(req.params.id)
+        }).then(() => {
+            res.status(200).end();
+        }).catch(next);
+    });
+
+
     return app;
 };
