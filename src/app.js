@@ -24,14 +24,13 @@ module.exports = (mongoClient) => {
 
     app.use('/api/auth', require('./routes/auth')(mongoClient));
 
+    app.use('/api/users', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}),  require('./routes/users')(mongoClient.collection('users')));
+    app.use('/api/groups', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}), restEndpoints(mongoClient.collection('groups')));
+    app.use('/api/databases', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}), restEndpoints(mongoClient.collection('databases')));
 
-
-    app.use('/api/users', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}),  restEndpoints(mongoClient.collection('users')));
-    app.use('/api/groups', restEndpoints(mongoClient.collection('groups')));
     app.use('/api/categories', require('./routes/categories')(mongoClient.collection('categories')));
     app.use('/api/tasks', restEndpoints(mongoClient.collection('tasks')));
     app.use('/api/results', restEndpoints(mongoClient.collection('results')));
-    app.use('/api/databases', restEndpoints(mongoClient.collection('databases')));
     app.use('/api/exams', require('./routes/exams')(mongoClient));
 
     app.post('/api/query', (req, res, next) => {
