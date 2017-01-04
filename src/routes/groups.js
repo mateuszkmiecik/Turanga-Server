@@ -34,16 +34,16 @@ module.exports = (mongoCollection) => {
         mongoCollection.findOneAndUpdate(
             {name: newGroup.name}, {
                 $setOnInsert: {
-                    name, username, role, group,
+                    name, description,
                     creationDate: new Date()
                 }
             }, {upsert: true})
             .then(mongoRes => {
                 if(!!mongoRes.value){
-                    return res.status(409).send({message: 'User already exists.'})
+                    return res.status(409).send({message: 'Group already exists.'})
                 }
                 res.status(201).send({
-                    message: 'New user created.'
+                    message: 'New group created.'
                 });
             })
             .catch(next);
