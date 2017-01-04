@@ -32,6 +32,7 @@ module.exports = (mongoClient) => {
     app.use('/api/tasks', restEndpoints(mongoClient.collection('tasks')));
     app.use('/api/results', restEndpoints(mongoClient.collection('results')));
     app.use('/api/databases', restEndpoints(mongoClient.collection('databases')));
+    app.use('/api/exams', require('./routes/exams')(mongoClient));
 
     app.post('/api/query', (req, res, next) => {
         if(!req.body){
