@@ -58,7 +58,7 @@ const Attempt = {
     user: Object,
     tasks: Array,
     lastUpdate: Date,
-    attemptOptions: Object
+    duration: Number,
 };
 
 const Result = {
