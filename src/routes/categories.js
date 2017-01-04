@@ -103,13 +103,14 @@ module.exports = (mongoCollection) => {
             })
         }
 
-        let idToReplace = category._id;
+        let idToReplace = req.params.id;
         delete category._id;
         console.log(category);
 
-        mongoCollection.update({
+        mongoCollection.findOneAndUpdate({
             _id: new ObjectId(idToReplace)
         }, {$set: category}).then((result) => {
+            console.log(result)
             return res.status(200).send({message: 'updated'});
         }).catch(next);
     });
