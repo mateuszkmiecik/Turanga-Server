@@ -94,7 +94,7 @@ module.exports = (mongoCollection) => {
         })
     });
 
-    app.put('/:id', (req, res, next) => {
+    app.put('/', (req, res, next) => {
         let category = req.body;
         if (!category) {
             return next({
