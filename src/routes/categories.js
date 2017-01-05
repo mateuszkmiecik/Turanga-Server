@@ -25,10 +25,23 @@ module.exports = (mongoCollection) => {
             }
 
             let category = result[0];
-            category.tasks = category.tasks.map(({taskId, description}) => ({taskId, description}))
-
             res.status(200).send(category);
         })
+    });
+
+    app.post('/search', (req, res, next) => {
+        if(!req.body){
+            return next({
+                status: 400,
+                message: 'No body sent'
+            })
+        }
+        let {query} = req.body;
+        mongoCollection.find({
+            name: {$regex: query, $options: 'i'}
+        }).toArray().then(result => {
+            res.status(200).send(result);
+        }).catch(next);
     });
 
     app.get('/:id/tasks/:taskId', (req, res, next) => {
@@ -44,16 +57,12 @@ module.exports = (mongoCollection) => {
 
             return result[0];
         }).then(result => {
-            console.log(result);
             let task = result.tasks.find(
                 function(element, index, array) {
-                    console.log(element.taskId);
-                    console.log(req.params.taskId);
                     return element.taskId == req.params.taskId;
                 }
             )
 
-            console.log(task);
 
             if (!task) {
                 return next({
@@ -105,7 +114,6 @@ module.exports = (mongoCollection) => {
 
         let idToReplace = req.params.id;
         delete category._id;
-        console.log(category);
 
         mongoCollection.findOneAndUpdate({
             _id: new ObjectId(idToReplace)
@@ -117,8 +125,15 @@ module.exports = (mongoCollection) => {
 
     app.post('/', (req, res, next) => {
         let newCategory = req.body;
-        mongoCollection.insertOne(newCategory)
+        let {name, tasks, description, hidden} = newCategory;
+        mongoCollection.findOneAndUpdate(
+            {name: newCategory.name}, {
+                $setOnInsert: {name, tasks, description, hidden}
+            }, {upsert: true})
             .then(mongoRes => {
+                if(!!mongoRes.value){
+                    return res.status(409).send({message: "Category with this name already exists"});
+                }
                 res.status(201).send(mongoRes);
             })
             .catch(next);

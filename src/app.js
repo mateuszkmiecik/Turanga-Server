@@ -1,6 +1,7 @@
 const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
+const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const request = require('request')
@@ -8,6 +9,11 @@ const request = require('request')
 const restEndpoints = require('./helpers/restEndpoints');
 const authMiddleware = require('./middlewares/auth-middleware');
 const USER_ROLES = require('./constants').USER_ROLES;
+
+const multiparty = require('connect-multiparty');
+const multipartyMidldleware = multiparty({
+    uploadDir: path.resolve(__dirname, '..', 'uploads')
+})
 
 module.exports = (mongoClient) => {
     const app = express();
@@ -35,6 +41,11 @@ module.exports = (mongoClient) => {
     app.use('/api/results', restEndpoints(mongoClient.collection('results')));
     app.use('/api/exams', require('./routes/exams')(mongoClient.collection('exams')));
     app.use('/api/attempts', require('./routes/attempts')(mongoClient));
+
+    app.post('/api/upload', multipartyMidldleware, (req, res, next) => {
+        console.log(req.files)
+        res.status(200).end('Upload completed')
+    })
 
     app.post('/api/query', (req, res, next) => {
         if(!req.body){
