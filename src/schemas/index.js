@@ -46,6 +46,7 @@ const Group = {
 const Exam = {
     id: ObjectId,
     categoryMap: Array,
+    timeLimited: Boolean,
     duration: Number,
     examCode: Number
 };

@@ -29,9 +29,25 @@ module.exports = (examCollection) => {
 
     app.post('/', (req, res, next) => {
         let exam = req.body;
-        exam.examCode = Math.random().toString(36).substring(2,8).toUpperCase()
-        examCollection.insertOne(exam)
+        const {name, categoryMap, categoriesNames, timeLimited, duration} = exam;
+        const examCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+        const objectToSave = {name, categoryMap, categoriesNames, timeLimited, examCode, creationDate: new Date()};
+        if (timeLimited) {
+            objectToSave.duration = duration
+        }
+
+        examCollection.findOneAndUpdate(
+            {name: exam.name}, {
+                $setOnInsert: objectToSave
+            }, {upsert: true})
             .then(mongoRes => {
+                if (!!mongoRes.value) {
+                    return next({
+                        status: 409,
+                        message: `Exam with name "${exam.name}" already exists.`
+                    })
+                }
                 res.status(201).send(mongoRes);
             })
             .catch(next);
