@@ -5,14 +5,17 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const request = require('request')
+const fs = require('fs')
 
 const restEndpoints = require('./helpers/restEndpoints');
 const authMiddleware = require('./middlewares/auth-middleware');
 const USER_ROLES = require('./constants').USER_ROLES;
 
+const uploadsDir = path.resolve(__dirname, '..', 'uploads');
+
 const multiparty = require('connect-multiparty');
-const multipartyMidldleware = multiparty({
-    uploadDir: path.resolve(__dirname, '..', 'uploads')
+const multipartyMiddleware = multiparty({
+    uploadDir: uploadsDir
 })
 
 module.exports = (mongoClient) => {
@@ -23,6 +26,8 @@ module.exports = (mongoClient) => {
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(cookieParser());
     app.use(cors());
+
+    app.use('/static', express.static('uploads'))
 
     app.get('/', (req, res) => {
         res.status(200).send({name: 'Turanga Server'})
@@ -43,10 +48,17 @@ module.exports = (mongoClient) => {
     app.use('/api/exams', require('./routes/exams')(mongoClient.collection('exams')));
     app.use('/api/attempts', require('./studentRoutes/index')(mongoClient));
 
-    app.post('/api/upload', multipartyMidldleware, (req, res, next) => {
-        console.log(req.files)
-        res.status(200).end('Upload completed')
-    })
+    app.post('/api/upload', multipartyMiddleware, (req, res, next) => {
+        Promise.all(req.files.files.map(file => new Promise((resolve, reject) => {
+            let targetPath = path.resolve(uploadsDir, file.originalFilename);
+            fs.rename(file.path, targetPath, function (err) {
+                if (err) reject(err);
+                else resolve(file.originalFilename);
+            });
+        }))).then((file) => {
+            res.status(200).send({message: 'Upload completed', filename: file[0]})
+        }).catch(next);
+    });
 
     app.post('/api/query', (req, res, next) => {
         if(!req.body){
