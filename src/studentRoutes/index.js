@@ -1,6 +1,6 @@
 const express = require('express');
 const ObjectId = require('mongodb').ObjectId;
-const request = require('request')
+const request = require('request');
 
 module.exports = (mongoClient) => {
     let app = express();
@@ -166,27 +166,55 @@ module.exports = (mongoClient) => {
             _id: new ObjectId(req.params.attId),
             deleted: null
         }).toArray().then(results => {
-            let attempt = results[0]
-            attempt.tasks.find({
-                taskId: req.params.id
-            }).toArray().then(result => {
-                queryRequest.correctQuery = result[0].correctQuery
-                let options = {
-                    method: 'post',
-                    body: queryRequest,
-                    json: true,
-                    url: 'http://localhost:8081/query'
-                };
-                request.post(options, (err, res) => {
-                    console.log(err)
-                    console.log(res)
-                });
+            let attempt = results[0];
+            let task = attempt.tasks.find( (task) => { return task.taskId == req.params.id })
 
-                res.status(200).end();
-            })
+            queryRequest.correctQuery = task.correctQuery
+            let options = {
+                method: 'post',
+                body: queryRequest,
+                json: true,
+                url: 'http://localhost:8081/query'
+            };
+            request.post(options, (err, resp) => {
+                attempt.results.push({
+                    "taskId":task.taskId,
+                    "date":Date.now(),
+                    "query":queryRequest.query,
+                    "correct":resp.correct
+                })
+
+                let idToReplace = attempt._id;
+                delete attempt._id;
+
+                attemptsCollection.update({
+                    _id: new ObjectId(idToReplace),
+                    deleted: null
+                }, {$set: attempt}).then((result) => {
+                }).catch(next);
+            }).pipe(res);
         }).catch(next)
 
     })
+
+    /*let attempt = results[0]
+    attempt.tasks.find({
+        taskId: req.params.id
+    }).toArray().then(result => {
+        queryRequest.correctQuery = result[0].correctQuery
+        let options = {
+            method: 'post',
+            body: queryRequest,
+            json: true,
+            url: 'http://localhost:8081/query'
+        };
+        request.post(options, (err, res) => {
+            console.log(err)
+            console.log(res)
+            res.status(200).end();
+        });
+
+    })*/
 
 // start attempt for exam - done
 // start attempt for category - done
