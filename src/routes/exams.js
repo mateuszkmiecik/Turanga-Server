@@ -57,7 +57,7 @@ module.exports = (examCollection) => {
     });
 
     app.delete('/:id', (req, res, next) => {
-        mongoCollection.find({
+        examCollection.find({
             _id: new ObjectId(req.params.id)
         }).toArray().then(result => {
             let object = result[0];
@@ -65,7 +65,7 @@ module.exports = (examCollection) => {
             object.deleted = true;
             delete object._id;
 
-            mongoCollection.findOneAndUpdate({
+            examCollection.findOneAndUpdate({
                 _id: new ObjectId(req.params.id)
             }, {$set: object}).then(results => {
                 return res.status(200).send({message: 'deleted'});
