@@ -30,6 +30,23 @@ module.exports = (examCollection) => {
         })
     });
 
+
+    app.post('/search', (req, res, next) => {
+        if(!req.body){
+            return next({
+                status: 400,
+                message: 'No body sent'
+            })
+        }
+        let {query} = req.body;
+        examCollection.find({
+            examCode: {$regex: query, $options: 'i'}
+        }).toArray().then(result => {
+            res.status(200).send(result);
+        }).catch(next);
+    });
+
+
     app.post('/', (req, res, next) => {
         let exam = req.body;
         const {name, categoryMap, categoriesNames, timeLimited, duration} = exam;

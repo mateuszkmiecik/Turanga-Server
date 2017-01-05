@@ -17,6 +17,8 @@ module.exports = [
                 name: 'Get all old authors',
          		description: 'Get those authors who are older then 60 years'
          	}
-        ]
+        ],
+        description: '<p>Example description</p>',
+        hidden: false
     }
 ];
