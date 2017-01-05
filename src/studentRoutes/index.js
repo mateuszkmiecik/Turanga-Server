@@ -44,6 +44,7 @@ module.exports = (mongoClient) => {
                 });
             }
 
+            result[0].tasks = result[0].tasks.map(({taskId, name, description}) => ({taskId, name, description}))
             res.status(200).send(result[0]);
         })
     });
@@ -105,7 +106,7 @@ module.exports = (mongoClient) => {
             let tasks = []
 
             results.forEach(val => {
-                (shuffle(val.tasks).slice(0, exam.categoryMap[val._id])).forEach(el => tasks.push(el))
+                (shuffle(val.tasks).slice(0, val.tasks.length)).forEach(el => tasks.push(el))
             })
 
             let attempt = {}
@@ -152,7 +153,8 @@ module.exports = (mongoClient) => {
             user: req.user,
             deleted: null
         }).toArray().then(results => {
-            res.status(200).send(results);
+            results[0].tasks.map(({taskId, name, description}) => ({taskId, name, description}))
+            res.status(200).send(results[0]);
         }).catch(next);
     })
 
