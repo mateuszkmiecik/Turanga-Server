@@ -6,7 +6,9 @@ module.exports = (mongoCollection) => {
     let app = express();
 
     app.get('/', (req, res, next) => {
-        mongoCollection.find().toArray()
+        mongoCollection.find({
+            deleted: null
+        }).toArray()
             .then(users => {
                 res.status(200).send(users);
             })
@@ -15,7 +17,8 @@ module.exports = (mongoCollection) => {
 
     app.get('/:id', (req, res, next) => {
         mongoCollection.find({
-            _id: new ObjectId(req.params.id)
+            _id: new ObjectId(req.params.id),
+            deleted: null
         }).toArray().then(result => {
             if (!result.length) {
                 return next({
@@ -46,7 +49,8 @@ module.exports = (mongoCollection) => {
 
     app.get('/:id/tasks/:taskId', (req, res, next) => {
         mongoCollection.find({
-            _id: new ObjectId(req.params.id)
+            _id: new ObjectId(req.params.id),
+            deleted: null
         }).toArray().then(result => {
             if (!result.length) {
                 return next({
@@ -79,7 +83,8 @@ module.exports = (mongoCollection) => {
 
     app.post('/:id/tasks', (req, res, next) => {
         mongoCollection.find({
-            _id: new ObjectId(req.params.id)
+            _id: new ObjectId(req.params.id),
+            deleted: null
         }).toArray().then(result => {
             if (!result.length) {
                 return next({
@@ -116,7 +121,8 @@ module.exports = (mongoCollection) => {
         delete category._id;
 
         mongoCollection.findOneAndUpdate({
-            _id: new ObjectId(idToReplace)
+            _id: new ObjectId(idToReplace),
+            deleted : null
         }, {$set: category}).then((result) => {
             console.log(result)
             return res.status(200).send({message: 'updated'});
@@ -127,7 +133,7 @@ module.exports = (mongoCollection) => {
         let newCategory = req.body;
         let {name, tasks, description, hidden} = newCategory;
         mongoCollection.findOneAndUpdate(
-            {name: newCategory.name}, {
+            {name: newCategory.name, deleted : null}, {
                 $setOnInsert: {name, tasks, description, hidden}
             }, {upsert: true})
             .then(mongoRes => {
@@ -140,10 +146,20 @@ module.exports = (mongoCollection) => {
     });
 
     app.delete('/:id', (req, res, next) => {
-        mongoCollection.deleteOne({
+        mongoCollection.find({
             _id: new ObjectId(req.params.id)
-        }).then(() => {
-            res.status(200).end();
+        }).toArray().then(result => {
+            let object = result[0];
+
+            object.deleted = true;
+            delete object._id;
+
+            mongoCollection.findOneAndUpdate({
+                _id: new ObjectId(req.params.id)
+            }, {$set: object}).then(results => {
+                return res.status(200).send({message: 'deleted'});
+            }).catch(next);
+
         }).catch(next);
     });
 

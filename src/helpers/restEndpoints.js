@@ -5,7 +5,7 @@ module.exports = (mongoCollection) => {
     let app = express();
 
     app.get('/', (req, res, next) => {
-        mongoCollection.find().toArray()
+        mongoCollection.find( { deleted : null }).toArray()
             .then(users => {
                 res.status(200).send(users);
             })
@@ -14,7 +14,8 @@ module.exports = (mongoCollection) => {
 
     app.get('/:id', (req, res, next) => {
         mongoCollection.find({
-            _id: new ObjectId(req.params.id)
+            _id: new ObjectId(req.params.id),
+            deleted : null
         }).toArray().then(result => {
             if (!result.length) {
                 return next({
@@ -37,10 +38,20 @@ module.exports = (mongoCollection) => {
     });
 
     app.delete('/:id', (req, res, next) => {
-        mongoCollection.deleteOne({
+        mongoCollection.find({
             _id: new ObjectId(req.params.id)
-        }).then(() => {
-            res.status(200).end();
+        }).toArray().then(result => {
+            let object = result[0];
+
+            object.deleted = true;
+            delete object._id;
+
+            mongoCollection.findOneAndUpdate({
+                _id: new ObjectId(req.params.id)
+            }, {$set: object}).then(results => {
+                return res.status(200).send({message: 'deleted'});
+            }).catch(next);
+
         }).catch(next);
     });
 

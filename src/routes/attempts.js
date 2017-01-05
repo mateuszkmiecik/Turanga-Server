@@ -11,7 +11,7 @@ module.exports = (mongoClient) => {
     let attemptsCollection = mongoClient.collection('attemps');
 
     app.get('/', (req, res, next) => {
-        attemptsCollection.find().toArray()
+        attemptsCollection.find({ deleted : null}).toArray()
             .then(attempts => {
                 res.status(200).send(attempts);
             })
@@ -20,7 +20,8 @@ module.exports = (mongoClient) => {
 
     app.get('/:id', (req, res, next) => {
         attemptsCollection.find({
-            _id: new ObjectId(req.params.id)
+            _id: new ObjectId(req.params.id),
+            deleted : null
         }).toArray().then(result => {
             if (!result.length) {
                 return next({
@@ -38,7 +39,8 @@ module.exports = (mongoClient) => {
         let user = req.user
 
         examsCollection.find({
-            _id: new ObjectId(req.params.id)
+            _id: new ObjectId(req.params.id),
+            deleted : null
         }).toArray().then(result => {
 
             let exam = result[0];
@@ -88,17 +90,28 @@ module.exports = (mongoClient) => {
         delete attempt._id;
 
         attemptsCollection.update({
-            _id: new ObjectId(idToReplace)
+            _id: new ObjectId(idToReplace),
+            deleted : null
         }, {$set: attempt}).then((result) => {
             return res.status(200).send({message: 'updated'});
         }).catch(next);
     });
 
     app.delete('/:id', (req, res, next) => {
-        mongoCollection.deleteOne({
+        mongoCollection.find({
             _id: new ObjectId(req.params.id)
-        }).then(() => {
-            res.status(200).end();
+        }).toArray().then(result => {
+            let object = result[0];
+
+            object.deleted = true;
+            delete object._id;
+
+            mongoCollection.findOneAndUpdate({
+                _id: new ObjectId(req.params.id)
+            }, {$set: object}).then(results => {
+                return res.status(200).send({message: 'deleted'});
+            }).catch(next);
+
         }).catch(next);
     });
 

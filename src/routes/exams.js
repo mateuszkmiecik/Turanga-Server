@@ -5,7 +5,9 @@ module.exports = (examCollection) => {
     let app = express();
 
     app.get('/', (req, res, next) => {
-        examCollection.find().toArray()
+        examCollection.find({
+            deleted : null
+        }).toArray()
             .then(exams => {
                 res.status(200).send(exams);
             })
@@ -14,7 +16,8 @@ module.exports = (examCollection) => {
 
     app.get('/:id', (req, res, next) => {
         examCollection.find({
-            _id: new ObjectId(req.params.id)
+            _id: new ObjectId(req.params.id),
+            deleted : null
         }).toArray().then(result => {
             if (!result.length) {
                 return next({
@@ -38,7 +41,7 @@ module.exports = (examCollection) => {
         }
 
         examCollection.findOneAndUpdate(
-            {name: exam.name}, {
+            {name: exam.name, deleted : null}, {
                 $setOnInsert: objectToSave
             }, {upsert: true})
             .then(mongoRes => {
@@ -54,10 +57,20 @@ module.exports = (examCollection) => {
     });
 
     app.delete('/:id', (req, res, next) => {
-        examCollection.deleteOne({
+        mongoCollection.find({
             _id: new ObjectId(req.params.id)
-        }).then(() => {
-            res.status(200).end();
+        }).toArray().then(result => {
+            let object = result[0];
+
+            object.deleted = true;
+            delete object._id;
+
+            mongoCollection.findOneAndUpdate({
+                _id: new ObjectId(req.params.id)
+            }, {$set: object}).then(results => {
+                return res.status(200).send({message: 'deleted'});
+            }).catch(next);
+
         }).catch(next);
     });
 

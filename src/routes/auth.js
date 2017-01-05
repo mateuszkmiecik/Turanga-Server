@@ -15,7 +15,7 @@ module.exports = (mongoClient) => {
     app.post('/', (req, res, next) => {
         let usersData = req.body;
 
-        mongoClient.collection('users').find({username: usersData.username}).toArray()
+        mongoClient.collection('users').find({username: usersData.username, deleted : null}).toArray()
             .then((foundUser) => {
                 let userToAuthenticate = foundUser[0];
 
