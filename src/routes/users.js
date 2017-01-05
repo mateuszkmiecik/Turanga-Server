@@ -55,6 +55,11 @@ module.exports = (mongoCollection) => {
     });
 
     app.delete('/:id', (req, res, next) => {
+
+        if (req.params.id == req.user._id) {
+            return res.status(409).send({message: 'User is unable to delete himself.'})
+        }
+
         mongoCollection.deleteOne({
             _id: new ObjectId(req.params.id)
         }).then(() => {
