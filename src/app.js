@@ -24,6 +24,8 @@ module.exports = (mongoClient) => {
 
     app.use('/api/auth', require('./routes/auth')(mongoClient));
 
+    app.use(authMiddleware);
+
     app.use('/api/users', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}),  require('./routes/users')(mongoClient.collection('users')));
     app.use('/api/groups', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}), require('./routes/groups')(mongoClient.collection('groups')));
     app.use('/api/databases', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}), restEndpoints(mongoClient.collection('databases')));
@@ -53,7 +55,7 @@ module.exports = (mongoClient) => {
             url: 'http://localhost:8081/dbs'
         };
         request.get(options).pipe(res);
-    })
+    });
 
 
     // catch 404 and forward to error handler
