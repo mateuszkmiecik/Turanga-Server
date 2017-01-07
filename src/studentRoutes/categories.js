@@ -85,7 +85,7 @@ module.exports = (mongoClient) => {
 
             attemptsCollection.insertOne(attempt)
                 .then(mongoRes => {
-                    attempt.tasks = tasks.map(({taskId, name, description}) => ({taskId, name, description}))
+                    attempt.tasks = tasks.map(({taskId, name, description}) => ({taskId, name, description}));
                     res.status(200).send(attempt)
                 })
                 .catch(next);
