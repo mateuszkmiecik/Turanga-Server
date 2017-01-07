@@ -66,8 +66,6 @@ module.exports = (mongoClient) => {
     })
 
     app.get('/:id', (req, res, next) => {
-        console.log(req.user);
-        console.log(req.params.id);
         attemptsCollection.find({
             _id: new ObjectId(req.params.id),
             "user._id": new ObjectId(req.user._id)
@@ -86,7 +84,7 @@ module.exports = (mongoClient) => {
                     attempt.finished = true
                 }
             }
-            attempt.tasks = attempt.tasks.map(({taskId, name, description}) => ({taskId, name, description}))
+            attempt.tasks = attempt.tasks.map(({taskId, name, description, requiredWords, forbiddenWords}) => ({taskId, name, description, requiredWords, forbiddenWords}))
             res.status(200).send(attempt);
         })
     });

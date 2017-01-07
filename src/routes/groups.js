@@ -88,7 +88,6 @@ module.exports = (mongoClient) => {
         }).then(result => {
             return res.status(200).send({message: 'deleted'});
         }).catch(next);
-
     })
 
     return app;
