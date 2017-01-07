@@ -31,15 +31,20 @@ module.exports = (mongoClient) => {
             hidden: false,
             deleted: null
         }).toArray()
-            .then(users => {
-                if(!users.length){
-                    return next({status: 400, message: 'User not found'})
+            .then(categories => {
+                if(!categories.length){
+                    return next({status: 400, message: 'Category not found'})
                 }
+                let category = categories[0];
+                let {_id, description, name} = category;
 
-                let user = users[0];
-                let {_id, description, name} = user;
+                attemptsCollection.find({
+                    catId: category._id
+                }).toArray().then(results => {
+                    let attempts = results
+                    res.status(200).send({_id, description, name, attempts});
+                })
 
-                res.status(200).send({_id, description, name});
             })
             .catch(next);
     });
