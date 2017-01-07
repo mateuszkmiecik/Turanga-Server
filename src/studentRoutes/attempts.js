@@ -7,7 +7,7 @@ module.exports = (mongoClient) => {
 
     let attemptsCollection = mongoClient.collection('attempts');
 
-    app.get('/my', (req, res, next) => {
+    app.get('/', (req, res, next) => {
         attemptsCollection.find({
             "user._id": req.user._id,
             deleted: null
