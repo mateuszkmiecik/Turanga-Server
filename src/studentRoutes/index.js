@@ -29,7 +29,7 @@ module.exports = (mongoClient) => {
             _id: new ObjectId(req.params.id),
             deleted: null
         }).toArray().then(result => {
-            if (!result.length) {
+            if (!result.length || result[0].user._id != req.user._id) {
                 return next({
                     status: 404,
                     message: 'Attempt not found.'
@@ -122,7 +122,7 @@ module.exports = (mongoClient) => {
 
     app.get('/my', (req, res, next) => {
         attemptsCollection.find({
-            user: req.user,
+            "user._id": new ObjectId(req.user._id),
             deleted: null
         }).toArray().then(results => {
             results[0].tasks.map(({taskId, name, description}) => ({taskId, name, description}))
