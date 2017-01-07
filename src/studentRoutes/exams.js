@@ -53,6 +53,7 @@ module.exports = (mongoClient) => {
                 attempt.examId = new ObjectId(req.params.id);
                 attempt.dateStarted = present;
                 attempt.user = user;
+                attempt.user._id = new ObjectId(user._id);
                 attempt.duration = exam.duration;
                 attempt.lastUpdate = present;
                 attempt.tasks = tasks;
