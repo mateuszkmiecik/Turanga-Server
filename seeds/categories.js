@@ -7,15 +7,15 @@ module.exports = [
         tasks: [
          	{
          	    taskId: uuid.v4(),
-         		correctQuery: 'SELECT * FROM authors',
-				name: 'Get authors',
-         		description: 'Get all authors from database'
+         		correctQuery: 'SELECT * FROM actor',
+				name: 'Get actors',
+         		description: 'Get all actors from database'
          	},
          	{
          	    taskId: uuid.v4(),
-                correctQuery: 'SELECT * FROM authors WHERE age > 60',
-                name: 'Get all old authors',
-         		description: 'Get those authors who are older then 60 years'
+                correctQuery: "SELECT * FROM actor where first_name like 'S%'",
+                name: 'Get all actors with name starting with "S"',
+         		description: 'Get all actors with name starting with "S"'
          	}
         ],
         description: '<p>Example description</p>',
