@@ -7,38 +7,18 @@ module.exports = (mongoClient) => {
 
     let attemptsCollection = mongoClient.collection('attempts');
 
-    app.get('/:id', (req, res, next) => {
-        attemptsCollection.find({
-            _id: new ObjectId(req.params.id),
-            user: {
-                _id : req.user._id
-            },
-            deleted: null
-        }).toArray().then(result => {
-            if (!result.length) {
-                return next({
-                    status: 404,
-                    message: 'Attempt not found.'
-                });
-            }
-
-            result[0].tasks = result[0].tasks.map(({taskId, name, description}) => ({taskId, name, description}))
-            res.status(200).send(result[0]);
-        })
-    });
-
-
     app.get('/my', (req, res, next) => {
         attemptsCollection.find({
-            user: {
-                _id : new ObjectId(req.user._id)
-            },
+            "user._id": req.user._id,
             deleted: null
         }).toArray().then(results => {
-            results[0].tasks.map(({taskId, name, description}) => ({taskId, name, description}))
-            res.status(200).send(results[0]);
+            res.status(200).send(results.map( attempt => {
+                attempt.tasks = attempt.tasks.map(({taskId, name, description}) => ({taskId, name, description}))
+                return attempt;
+            }));
         }).catch(next);
     })
+
 
     app.post('/query/:id/:attId', (req, res, next) => {
         if (!req.body) {
@@ -84,6 +64,24 @@ module.exports = (mongoClient) => {
         }).catch(next)
 
     })
+
+    app.get('/:id', (req, res, next) => {
+        attemptsCollection.find({
+            _id: new ObjectId(req.params.id),
+            "user._id": req.user._id,
+            deleted: null
+        }).toArray().then(result => {
+            if (!result.length) {
+                return next({
+                    status: 404,
+                    message: 'Attempt not found.'
+                });
+            }
+
+            result[0].tasks = result[0].tasks.map(({taskId, name, description}) => ({taskId, name, description}))
+            res.status(200).send(result[0]);
+        })
+    });
 
     return app;
 };
