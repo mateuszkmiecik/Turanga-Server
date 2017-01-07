@@ -37,7 +37,7 @@ module.exports = (mongoClient) => {
 
     //app.use(authMiddleware);
 
-    app.use('/api/student', require('./studentRoutes')(mongoClient));
+    app.use('/api/student/attempts', require('./studentRoutes/index')(mongoClient));
 
     app.use('/api/users', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}),  require('./routes/users')(mongoClient.collection('users')));
     app.use('/api/groups', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}), require('./routes/groups')(mongoClient.collection('groups')));
@@ -46,7 +46,7 @@ module.exports = (mongoClient) => {
     app.use('/api/categories', require('./routes/categories')(mongoClient.collection('categories')));
     app.use('/api/results', restEndpoints(mongoClient.collection('results')));
     app.use('/api/exams', require('./routes/exams')(mongoClient.collection('exams')));
-    app.use('/api/attempts', require('./studentRoutes/index')(mongoClient));
+    app.use('/api/attempts', require('./routes/attempts')(mongoClient));
 
     app.post('/api/upload', multipartyMiddleware, (req, res, next) => {
         Promise.all(req.files.files.map(file => new Promise((resolve, reject) => {

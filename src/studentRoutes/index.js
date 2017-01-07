@@ -179,6 +179,7 @@ module.exports = (mongoClient) => {
                 url: 'http://localhost:8081/query'
             };
             request.post(options, (err, resp) => {
+                attempt.lastUpdate = Date.now()
                 attempt.results.push({
                     "taskId":task.taskId,
                     "date":Date.now(),
@@ -193,8 +194,11 @@ module.exports = (mongoClient) => {
                     _id: new ObjectId(idToReplace),
                     deleted: null
                 }, {$set: attempt}).then((result) => {
+                    resp.body.lastUpdate = attempt.lastUpdate
+                    resp.body.attemptResults = attempt.results
+                    res.status(200).send(resp.body)
                 }).catch(next);
-            }).pipe(res);
+            });
         }).catch(next)
 
     })
