@@ -24,7 +24,7 @@ const Category = {
     id: ObjectId,
     name: String,
     description: String,
-    private: Boolean
+    hidden: Boolean
 };
 
 
@@ -34,8 +34,8 @@ const Exercise = {
     description: String,
     correctQuery: String,
     engineDB: Object,
-    allowedWords: Array,
-    restrictedWords: Array
+    requiredWords: Array,
+    forbiddenWords: Array
 };
 
 const Group = {
@@ -62,18 +62,17 @@ const Attempt = {
 };
 
 const Result = {
-    id: ObjectId,
-    user: Object,
-    attempt: ObjectId,
-    task: Object,
-    details: Object
+    correct: Boolean,
+    query: String,
+    taskId: ObjectId,
+    date: Date
 };
 
 const QueryRequest = {
     query: String,
     correctQuery: String,
-    forbiddenWords: Array,
     requiredWords: Array,
+    forbiddenWords: Array,
     dbDetails: Object
 };
 
