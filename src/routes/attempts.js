@@ -6,9 +6,7 @@ module.exports = (mongoClient) => {
 
     let app = express();
 
-    let categoriesCollection = mongoClient.collection('categories');
-    let examsCollection = mongoClient.collection('exams');
-    let attemptsCollection = mongoClient.collection('attemps');
+    let attemptsCollection = mongoClient.collection('attempts');
 
     app.get('/', (req, res, next) => {
         attemptsCollection.find({ deleted : null}).toArray()

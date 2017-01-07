@@ -25,7 +25,7 @@ module.exports = (mongoClient) => {
     });
 
 
-    app.post('/exams/:id', (req, res, next) => {
+    app.post('/:id', (req, res, next) => {
 
         let user = req.user
 

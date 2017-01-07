@@ -18,7 +18,7 @@ module.exports = (mongoClient) => {
             .catch(next);
     });
 
-    app.post('/categories/:id', (req, res, next) => {
+    app.post('/:id', (req, res, next) => {
 
         let user = req.user
 

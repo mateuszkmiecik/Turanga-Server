@@ -5,15 +5,17 @@ const request = require('request');
 module.exports = (mongoClient) => {
     let app = express();
 
-    let categoriesCollection = mongoClient.collection('categories');
     let attemptsCollection = mongoClient.collection('attempts');
 
     app.get('/:id', (req, res, next) => {
         attemptsCollection.find({
             _id: new ObjectId(req.params.id),
+            user: {
+                _id : req.user._id
+            },
             deleted: null
         }).toArray().then(result => {
-            if (!result.length || result[0].user._id != req.user._id) {
+            if (!result.length) {
                 return next({
                     status: 404,
                     message: 'Attempt not found.'
@@ -28,7 +30,9 @@ module.exports = (mongoClient) => {
 
     app.get('/my', (req, res, next) => {
         attemptsCollection.find({
-            "user._id": new ObjectId(req.user._id),
+            user: {
+                _id : new ObjectId(req.user._id)
+            },
             deleted: null
         }).toArray().then(results => {
             results[0].tasks.map(({taskId, name, description}) => ({taskId, name, description}))
