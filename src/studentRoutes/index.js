@@ -9,14 +9,6 @@ module.exports = (mongoClient) => {
     let categoriesCollection = mongoClient.collection('categories');
     let attemptsCollection = mongoClient.collection('attempts');
 
-    app.get('/', (req, res, next) => {
-        attemptsCollection.find({ deleted : null}).toArray()
-            .then(attempts => {
-                res.status(200).send(attempts);
-            })
-            .catch(next);
-    });
-
     app.post('/search', (req, res, next) => {
         if (!req.body) {
             return next({
@@ -128,26 +120,6 @@ module.exports = (mongoClient) => {
 
     });
 
-    app.put('/:id', (req, res, next) => {
-        let attempt = req.body;
-        if (!attempt) {
-            return next({
-                status: 400,
-                message: 'No attempt sent'
-            })
-        }
-
-        let idToReplace = attempt._id;
-        delete attempt._id;
-
-        attemptsCollection.update({
-            _id: new ObjectId(idToReplace),
-            deleted: null
-        }, {$set: attempt}).then((result) => {
-            return res.status(200).send({message: 'updated'});
-        }).catch(next);
-    });
-
     app.get('/my', (req, res, next) => {
         attemptsCollection.find({
             user: req.user,
@@ -202,41 +174,6 @@ module.exports = (mongoClient) => {
         }).catch(next)
 
     })
-
-    /*let attempt = results[0]
-    attempt.tasks.find({
-        taskId: req.params.id
-    }).toArray().then(result => {
-        queryRequest.correctQuery = result[0].correctQuery
-        let options = {
-            method: 'post',
-            body: queryRequest,
-            json: true,
-            url: 'http://localhost:8081/query'
-        };
-        request.post(options, (err, res) => {
-            console.log(err)
-            console.log(res)
-            res.status(200).end();
-        });
-
-    })*/
-
-// start attempt for exam - done
-// start attempt for category - done
-
-// get all my attempts - done
-// get attempt with id - done
-// send query for task and attempt
-
-
-// show my results
-// get results for attempt
-
-
-// get all possible categories
-// get category with id
-
 
     function shuffle(array) {
         let counter = array.length;
