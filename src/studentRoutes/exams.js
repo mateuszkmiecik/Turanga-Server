@@ -1,6 +1,5 @@
 const express = require('express');
 const ObjectId = require('mongodb').ObjectId;
-const request = require('request');
 const shuffle = require('../utils/shuffle');
 
 module.exports = (mongoClient) => {
@@ -18,7 +17,7 @@ module.exports = (mongoClient) => {
             })
         }
         let {query} = req.body;
-        examCollection.find({
+        examsCollection.find({
             examCode: {$regex: query, $options: 'i'}
         }).toArray().then(result => {
             res.status(200).send(result);
@@ -28,7 +27,7 @@ module.exports = (mongoClient) => {
 
     app.post('/:id', (req, res, next) => {
 
-        let user = req.user
+        let user = req.user;
 
         examsCollection.find({
             _id: new ObjectId(req.params.id),
@@ -43,21 +42,21 @@ module.exports = (mongoClient) => {
                 _id: {$in: catIds}
             }).toArray().then(results => {
 
-                let tasks = []
+                let tasks = [];
 
                 results.forEach(val => {
                     (shuffle(val.tasks).slice(0, exam.categoryMap[val._id])).forEach(el => tasks.push(el))
-                })
+                });
 
-                let attempt = {}
-                let present = Date.now()
-                attempt.examId = new ObjectId(req.params.id)
-                attempt.dateStarted = present
-                attempt.user = user
-                attempt.duration = exam.duration
-                attempt.lastUpdate = present
-                attempt.tasks = tasks
-                attempt.results = []
+                let attempt = {};
+                let present = Date.now();
+                attempt.examId = new ObjectId(req.params.id);
+                attempt.dateStarted = present;
+                attempt.user = user;
+                attempt.duration = exam.duration;
+                attempt.lastUpdate = present;
+                attempt.tasks = tasks;
+                attempt.results = [];
 
                 attemptsCollection.insertOne(attempt)
                     .then(mongoRes => {

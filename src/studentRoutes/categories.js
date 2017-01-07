@@ -40,8 +40,7 @@ module.exports = (mongoClient) => {
 
                 attemptsCollection.find({
                     catId: category._id
-                }).toArray().then(results => {
-                    let attempts = results
+                }).toArray().then(attempts => {
                     res.status(200).send({_id, description, name, attempts});
                 })
 
@@ -58,20 +57,31 @@ module.exports = (mongoClient) => {
             deleted: null
         }).toArray().then(results => {
 
+            if(!results.length){
+                return next({
+                    status: 404,
+                    message: 'Category not found'
+                })
+            }
+
             let tasks = [];
 
             results.forEach(val => {
                 (shuffle(val.tasks).slice(0, val.tasks.length)).forEach(el => tasks.push(el))
             });
 
-            let attempt = {}
-            let present = Date.now()
-            attempt.catId = new ObjectId(req.params.id)
-            attempt.dateStarted = present
-            attempt.user = user
-            attempt.lastUpdate = present
-            attempt.tasks = tasks
-            attempt.results = []
+            let attempt = {};
+            let present = Date.now();
+            attempt.catId = new ObjectId(req.params.id);
+            attempt.dateStarted = present;
+
+            user._id = new ObjectId(user._id);
+
+            attempt.user = user;
+            attempt.lastUpdate = present;
+            attempt.tasks = tasks;
+            attempt.results = [];
+            attempt.name = results[0].name;
 
             attemptsCollection.insertOne(attempt)
                 .then(mongoRes => {
