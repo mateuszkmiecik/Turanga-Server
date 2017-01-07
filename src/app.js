@@ -37,7 +37,9 @@ module.exports = (mongoClient) => {
 
     app.use(authMiddleware);
 
-    app.use('/api/student/attempts', require('./studentRoutes/index')(mongoClient));
+    app.use('/api/student/attempts', require('./studentRoutes/attempts')(mongoClient));
+    app.use('/api/student/exams', require('./studentRoutes/exams')(mongoClient));
+    app.use('/api/student/categories', require('./studentRoutes/categories')(mongoClient));
 
     app.use('/api/users', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}),  require('./routes/users')(mongoClient.collection('users')));
     app.use('/api/groups', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}), require('./routes/groups')(mongoClient.collection('groups')));
