@@ -9,8 +9,7 @@ module.exports = (mongoClient) => {
 
     app.get('/', (req, res, next) => {
         attemptsCollection.find({
-            "user._id": new ObjectId(req.user._id),
-            deleted: null
+            "user._id": new ObjectId(req.user._id)
         }).toArray().then(results => {
             res.status(200).send(results.map(attempt => {
                 attempt.tasks = attempt.tasks.map(({taskId, name, description}) => ({taskId, name, description}))
@@ -27,8 +26,7 @@ module.exports = (mongoClient) => {
         let queryRequest = req.body;
 
         attemptsCollection.find({
-            _id: new ObjectId(req.params.attId),
-            deleted: null
+            _id: new ObjectId(req.params.attId)
         }).toArray().then(results => {
             let attempt = results[0];
             let task = attempt.tasks.find((task) => {
@@ -68,10 +66,11 @@ module.exports = (mongoClient) => {
     })
 
     app.get('/:id', (req, res, next) => {
+        console.log(req.user);
+        console.log(req.params.id);
         attemptsCollection.find({
             _id: new ObjectId(req.params.id),
-            "user._id": req.user._id,
-            deleted: null
+            "user._id": new ObjectId(req.user._id)
         }).toArray().then(result => {
             if (!result.length) {
                 return next({
@@ -95,8 +94,7 @@ module.exports = (mongoClient) => {
     app.put('/:id/finish', (req, res, next) => {
         attemptsCollection.findOneAndUpdate({
             _id: new ObjectId(req.params.id),
-            "user._id": new ObjectId(req.user._id),
-            deleted: null
+            "user._id": new ObjectId(req.user._id)
         }, {$set: {finished: true}}).then((result) => {
             res.status(200).send({message : "Attempt finished."})
         }).catch(next);
