@@ -35,9 +35,13 @@ module.exports = (mongoCollection) => {
 
         let sha256 = crypto.createHash('sha256');
 
+        if (!! group) {
+            group._id = new ObjectId(group._id)
+        }
+
 
         mongoCollection.findOneAndUpdate(
-            {username: newUsersData.username}, {
+            {username: newUsersData.username, deleted : null}, {
                 $setOnInsert: {
                     name, username, role, group,
                     password: sha256.update(password).digest('hex'),
