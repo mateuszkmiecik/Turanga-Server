@@ -1,6 +1,7 @@
 const express = require('express');
 const ObjectId = require('mongodb').ObjectId;
 const request = require('request');
+const shuffle = require('../utils/shuffle');
 
 module.exports = (mongoClient) => {
     let app = express();
@@ -69,22 +70,6 @@ module.exports = (mongoClient) => {
         })
 
     });
-
-    function shuffle(array) {
-        let counter = array.length;
-
-        while (counter > 0) {
-            let index = Math.floor(Math.random() * counter);
-
-            counter--;
-
-            let temp = array[counter];
-            array[counter] = array[index];
-            array[index] = temp;
-        }
-
-        return array;
-    }
 
     return app;
 };
