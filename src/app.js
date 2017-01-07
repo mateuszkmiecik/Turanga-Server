@@ -41,25 +41,6 @@ module.exports = (mongoClient) => {
     app.use('/api/student/exams', require('./studentRoutes/exams')(mongoClient));
     app.use('/api/student/categories', require('./studentRoutes/categories')(mongoClient));
 
-    app.use('/api/users', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}),  require('./routes/users')(mongoClient.collection('users')));
-    app.use('/api/groups', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}), require('./routes/groups')(mongoClient));
-    app.use('/api/databases', authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}), restEndpoints(mongoClient.collection('databases')));
-
-    app.use('/api/categories', require('./routes/categories')(mongoClient.collection('categories')));
-    app.use('/api/exams', require('./routes/exams')(mongoClient.collection('exams')));
-    app.use('/api/attempts', require('./routes/attempts')(mongoClient));
-
-    app.post('/api/upload', multipartyMiddleware, (req, res, next) => {
-        Promise.all(req.files.files.map(file => new Promise((resolve, reject) => {
-            let targetPath = path.resolve(uploadsDir, file.originalFilename);
-            fs.rename(file.path, targetPath, function (err) {
-                if (err) reject(err);
-                else resolve(file.originalFilename);
-            });
-        }))).then((file) => {
-            res.status(200).send({message: 'Upload completed', filename: file[0]})
-        }).catch(next);
-    });
 
     app.post('/api/query', (req, res, next) => {
         if(!req.body){
@@ -74,6 +55,16 @@ module.exports = (mongoClient) => {
         request.post(options).pipe(res);
     });
 
+    app.use(authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}));
+
+    app.use('/api/users',  require('./routes/users')(mongoClient.collection('users')));
+    app.use('/api/groups', require('./routes/groups')(mongoClient));
+    app.use('/api/databases', restEndpoints(mongoClient.collection('databases')));
+
+    app.use('/api/categories', require('./routes/categories')(mongoClient.collection('categories')));
+    app.use('/api/exams', require('./routes/exams')(mongoClient.collection('exams')));
+    app.use('/api/attempts', require('./routes/attempts')(mongoClient));
+
     app.get('/api/dbs', (req, res, next) => {
         let options = {
             method: 'get',
@@ -81,6 +72,20 @@ module.exports = (mongoClient) => {
         };
         request.get(options).pipe(res);
     });
+
+    app.post('/api/upload', multipartyMiddleware, (req, res, next) => {
+        Promise.all(req.files.files.map(file => new Promise((resolve, reject) => {
+            let targetPath = path.resolve(uploadsDir, file.originalFilename);
+            fs.rename(file.path, targetPath, function (err) {
+                if (err) reject(err);
+                else resolve(file.originalFilename);
+            });
+        }))).then((file) => {
+            res.status(200).send({message: 'Upload completed', filename: file[0]})
+        }).catch(next);
+    });
+
+
 
 
     // catch 404 and forward to error handler
