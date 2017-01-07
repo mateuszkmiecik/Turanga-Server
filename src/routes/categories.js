@@ -41,7 +41,8 @@ module.exports = (mongoCollection) => {
         }
         let {query} = req.body;
         mongoCollection.find({
-            name: {$regex: query, $options: 'i', deleted : null }
+            name: {$regex: query, $options: 'i' },
+            deleted : null
         }).toArray().then(result => {
             res.status(200).send(result);
         }).catch(next);
