@@ -25,6 +25,12 @@ MongoClient.connect(config.mongoDbUrl).then((mongo) => {
     return mongoClient.collection('categories').insertMany(categories).then(response => console.log('Mongo response:', response));
 
 }).then(() => {
+
+    console.log('Inserting dbs');
+    let databases = require('../seeds/databases');
+    return mongoClient.collection('databases').insertMany(databases).then(response => console.log('Mongo response:', response));
+
+}).then(() => {
     process.exit(0);
 }).catch((err) => {
     console.log(err);
