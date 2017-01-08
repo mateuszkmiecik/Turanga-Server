@@ -70,6 +70,24 @@ module.exports = (mongoClient) => {
             .catch(next);
     });
 
+    app.put('/:id', (req, res, next) => {
+        let updatedGroup = req.body;
+        //delete updatedGroup._id;
+        groupsCollection.findOneAndUpdate({
+            _id : new ObjectId(req.params.id)
+        }, {$set : updatedGroup}, {returnOriginal : false}).then(result => {
+            return usersCollection.findOneAndUpdate({
+                "group._id": new ObjectId(req.params.id)
+            }, {
+                $set: {
+                    group: result.value
+                }
+            })
+        }).then(results => {
+            return res.status(200).send({message: 'updated'});
+        }).catch(next);
+    })
+
     app.delete('/:id', (req, res, next) => {
         groupsCollection.findOneAndUpdate({
             _id: new ObjectId(req.params.id)
