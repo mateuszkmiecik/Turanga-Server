@@ -64,6 +64,12 @@ module.exports = (mongoClient) => {
             queryRequest.correctQuery = task.correctQuery
             if(!!task.requiredWords) queryRequest.requiredWords = task.requiredWords.map(({text}) => (text))
             if(!!task.forbiddenWords) queryRequest.forbiddenWords = task.forbiddenWords.map(({text}) => (text))
+
+
+            let {url, user, password, dbEngine} = task.engineDB[0]
+
+            queryRequest.dbDetails = {url, user, password, db : dbEngine}
+
             let options = {
                 method: 'post',
                 body: queryRequest,

@@ -125,7 +125,6 @@ module.exports = (mongoCollection) => {
             _id: new ObjectId(idToReplace),
             deleted : null
         }, {$set: category}).then((result) => {
-            console.log(result)
             return res.status(200).send({message: 'updated'});
         }).catch(next);
     });
