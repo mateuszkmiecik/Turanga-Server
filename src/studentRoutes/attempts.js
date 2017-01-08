@@ -62,6 +62,8 @@ module.exports = (mongoClient) => {
             })
 
             queryRequest.correctQuery = task.correctQuery
+            if(!!task.requiredWords) queryRequest.requiredWords = task.requiredWords.map(({text}) => (text))
+            if(!!task.forbiddenWords) queryRequest.forbiddenWords = task.forbiddenWords.map(({text}) => (text))
             let options = {
                 method: 'post',
                 body: queryRequest,
