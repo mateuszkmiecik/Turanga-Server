@@ -38,12 +38,7 @@ module.exports = (mongoClient) => {
                 let category = categories[0];
                 let {_id, description, name} = category;
 
-                attemptsCollection.find({
-                    catId: category._id
-                }).toArray().then(attempts => {
-                    res.status(200).send({_id, description, name, attempts});
-                })
-
+                res.status(200).send({_id, description, name});
             })
             .catch(next);
     });
@@ -89,12 +84,13 @@ module.exports = (mongoClient) => {
 
             attemptsCollection.insertOne(attempt)
                 .then(mongoRes => {
-                    attempt.tasks = tasks.map(({taskId, name, description, forbiddenWords, requiredWords}) => ({
+                    attempt.tasks = tasks.map(({taskId, name, description, forbiddenWords, requiredWords, engineDB}) => ({
                         taskId,
                         name,
                         description,
                         forbiddenWords,
-                        requiredWords
+                        requiredWords,
+                        engineDB
                     }));
                     res.status(200).send(attempt)
                 })

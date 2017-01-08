@@ -24,6 +24,24 @@ module.exports = (mongoClient) => {
         }).catch(next);
     });
 
+    app.get('/:id', (req, res, next) => {
+        examsCollection.find({
+            _id: new ObjectId(req.params.id),
+            deleted: null
+        }).toArray()
+            .then(exams => {
+                if (!exams.length) {
+                    return next({status: 400, message: 'Exam not found'})
+                }
+                let exam = exams[0];
+                let {_id, name, timeLimited, duration} = exam;
+
+                res.status(200).send({_id, name, timeLimited, duration});
+
+            })
+            .catch(next);
+    });
+
 
     app.post('/:id', (req, res, next) => {
 
@@ -63,7 +81,14 @@ module.exports = (mongoClient) => {
 
                 attemptsCollection.insertOne(attempt)
                     .then(mongoRes => {
-                        attempt.tasks = tasks.map(({taskId, name, description}) => ({taskId, name, description}))
+                        attempt.tasks = tasks.map(({taskId, name, description, forbiddenWords, requiredWords, engineDB}) => ({
+                            taskId,
+                            name,
+                            description,
+                            forbiddenWords,
+                            requiredWords,
+                            engineDB
+                        }));
                         res.status(200).send(attempt)
                     })
                     .catch(next);
