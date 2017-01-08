@@ -34,9 +34,10 @@ module.exports = (mongoClient) => {
                     return next({status: 400, message: 'Exam not found'})
                 }
                 let exam = exams[0];
+                let numOfTasks = (Object.keys(exam.categoryMap)).map(el => exam.categoryMap[el]).reduce((prev, curr, ind, arr) => { return prev + curr }, 0);
                 let {_id, name, timeLimited, duration} = exam;
 
-                res.status(200).send({_id, name, timeLimited, duration});
+                res.status(200).send({_id, name, timeLimited, duration, numOfTasks});
 
             })
             .catch(next);
