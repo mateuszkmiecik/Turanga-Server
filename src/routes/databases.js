@@ -6,8 +6,8 @@ module.exports = (dbCollection) => {
 
     app.get('/', (req, res, next) => {
         dbCollection.find({deleted: null}).toArray()
-            .then(groups => {
-                res.status(200).send(groups);
+            .then(dbs => {
+                res.status(200).send(dbs);
             })
             .catch(next);
     });
