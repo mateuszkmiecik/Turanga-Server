@@ -106,7 +106,7 @@ module.exports = (mongoClient) => {
             }
 
             let attempt = result[0]
-            if (!!attempt.duration) {
+            if (attempt.finished == false && !!attempt.duration) {
                 let durationInMs = attempt.duration * 60 * 1000
                 if (Date.now() - attempt.dateStarted >= durationInMs) {
                     attempt.finished = true
