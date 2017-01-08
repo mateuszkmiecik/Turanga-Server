@@ -71,7 +71,7 @@ module.exports = (mongoClient) => {
             request.post(options, (err, resp) => {
                 attempt.lastUpdate = Date.now()
                 attempt.results.push({
-                    "task": task.taskId,
+                    "taskId": task.taskId,
                     "date": Date.now(),
                     "query": queryRequest.query,
                     "correct": resp.body.correct
@@ -121,8 +121,24 @@ module.exports = (mongoClient) => {
         attemptsCollection.findOneAndUpdate({
             _id: new ObjectId(req.params.id),
             "user._id": new ObjectId(req.user._id)
-        }, {$set: {finished: true}}).then((result) => {
-            res.status(200).send({message : "Attempt finished."})
+        }, {$set: {finished: true}}, {returnOriginal : false}).then((result) => {
+
+            let tasksId = new Set();
+            let score = result.value.results.reduce((prev, curr, index, array) => {
+                if (!tasksId.has(curr.taskId) && curr.correct) {
+                    tasksId.add(curr.taskId);
+                    return prev + 1;
+                }
+                return prev;
+            }, 0);
+
+            attemptsCollection.findOneAndUpdate({
+                _id: new ObjectId(req.params.id),
+                "user._id": new ObjectId(req.user._id)
+            }, {$set: {score : score}}, {returnOriginal : false}).then(attempt => {
+                res.status(200).send({message : "Attempt finished.", score : attempt.value.score, total : attempt.value.tasks.length})
+            }).catch(next);
+
         }).catch(next);
     })
 
