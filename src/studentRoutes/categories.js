@@ -16,7 +16,7 @@ module.exports = (mongoClient) => {
             .then(categories => {
                 res.status(200).send(categories.filter(cat => cat.tasks && cat.tasks.length > 0).map(({_id, description, name, tasks}) => {
                     let category = {_id, description, name, exercisesNumber: 0};
-                    if(!!tasks){
+                    if (!!tasks) {
                         category.exercisesNumber = tasks.length;
                     }
                     return category;
@@ -32,7 +32,7 @@ module.exports = (mongoClient) => {
             deleted: null
         }).toArray()
             .then(categories => {
-                if(!categories.length){
+                if (!categories.length) {
                     return next({status: 400, message: 'Category not found'})
                 }
                 let category = categories[0];
@@ -57,7 +57,7 @@ module.exports = (mongoClient) => {
             deleted: null
         }).toArray().then(results => {
 
-            if(!results.length){
+            if (!results.length) {
                 return next({
                     status: 404,
                     message: 'Category not found'
@@ -82,11 +82,20 @@ module.exports = (mongoClient) => {
             attempt.tasks = tasks;
             attempt.results = [];
             attempt.name = results[0].name;
+            if (!!req.body) {
+                attempt.duration = req.body.duration;
+            }
             attempt.finished = false;
 
             attemptsCollection.insertOne(attempt)
                 .then(mongoRes => {
-                    attempt.tasks = tasks.map(({taskId, name, description, forbiddenWords, requiredWords}) => ({taskId, name, description, forbiddenWords, requiredWords}));
+                    attempt.tasks = tasks.map(({taskId, name, description, forbiddenWords, requiredWords}) => ({
+                        taskId,
+                        name,
+                        description,
+                        forbiddenWords,
+                        requiredWords
+                    }));
                     res.status(200).send(attempt)
                 })
                 .catch(next);
