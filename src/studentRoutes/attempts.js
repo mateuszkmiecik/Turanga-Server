@@ -18,6 +18,31 @@ module.exports = (mongoClient) => {
         }).catch(next);
     })
 
+    app.get('/ex', (req, res, next) => {
+        attemptsCollection.find({
+            "user._id": new ObjectId(req.user._id),
+            examId : { $exists : true}
+        }).toArray().then(results => {
+            res.status(200).send(results.map(attempt => {
+                attempt.tasks = attempt.tasks.map(({taskId, name, description}) => ({taskId, name, description}))
+                return attempt;
+            }));
+        }).catch(next);
+    })
+
+    app.get('/cat', (req, res, next) => {
+        attemptsCollection.find({
+            "user._id": new ObjectId(req.user._id),
+            catId : { $exists : true}
+        }).toArray().then(results => {
+            res.status(200).send(results.map(attempt => {
+                attempt.tasks = attempt.tasks.map(({taskId, name, description}) => ({taskId, name, description}))
+                return attempt;
+            }));
+        }).catch(next);
+    })
+
+
 
     app.post('/query/:id/:attId', (req, res, next) => {
         if (!req.body) {

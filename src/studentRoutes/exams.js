@@ -58,6 +58,7 @@ module.exports = (mongoClient) => {
                 attempt.lastUpdate = present;
                 attempt.tasks = tasks;
                 attempt.results = [];
+                attempt.name = exam.name;
 
                 attemptsCollection.insertOne(attempt)
                     .then(mongoRes => {
