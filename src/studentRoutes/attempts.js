@@ -19,8 +19,10 @@ module.exports = (mongoClient) => {
     })
 
     app.get('/ex', (req, res, next) => {
+        let isFinished = req.query.isFinished === "true";
         attemptsCollection.find({
             "user._id": new ObjectId(req.user._id),
+            finished: isFinished,
             examId : { $exists : true}
         }).toArray().then(results => {
             res.status(200).send(results.map(attempt => {
@@ -31,8 +33,10 @@ module.exports = (mongoClient) => {
     })
 
     app.get('/cat', (req, res, next) => {
+        let isFinished = req.query.isFinished === "true";
         attemptsCollection.find({
             "user._id": new ObjectId(req.user._id),
+            finished : isFinished,
             catId : { $exists : true}
         }).toArray().then(results => {
             res.status(200).send(results.map(attempt => {
@@ -41,7 +45,6 @@ module.exports = (mongoClient) => {
             }));
         }).catch(next);
     })
-
 
 
     app.post('/query/:id/:attId', (req, res, next) => {
@@ -68,7 +71,7 @@ module.exports = (mongoClient) => {
             request.post(options, (err, resp) => {
                 attempt.lastUpdate = Date.now()
                 attempt.results.push({
-                    "taskId": task.taskId,
+                    "task": task.taskId,
                     "date": Date.now(),
                     "query": queryRequest.query,
                     "correct": resp.body.correct
