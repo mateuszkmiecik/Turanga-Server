@@ -54,7 +54,20 @@ module.exports = (mongoClient) => {
         request.post(options).pipe(res);
     });
 
+
     app.use(authMiddleware.withStatus({allowedRoles: [USER_ROLES.ADMIN]}));
+
+    app.get('/api/dbCodes', (req, res, next) => {
+        let options = {
+            method: 'get',
+            url: 'http://localhost:8081/dbs'
+        };
+        request.get(options, (err, resp) => {
+            let dbs = resp.body;
+            dbs = JSON.parse(dbs).map(el => { return {code : el}});
+            res.status(200).send(dbs);
+        });
+    });
 
     app.use('/api/users',  require('./routes/users')(mongoClient.collection('users')));
     app.use('/api/groups', require('./routes/groups')(mongoClient));
@@ -64,13 +77,6 @@ module.exports = (mongoClient) => {
     app.use('/api/exams', require('./routes/exams')(mongoClient.collection('exams')));
     app.use('/api/attempts', require('./routes/attempts')(mongoClient));
 
-    app.get('/api/dbs', (req, res, next) => {
-        let options = {
-            method: 'get',
-            url: 'http://localhost:8081/dbs'
-        };
-        request.get(options).pipe(res);
-    });
 
     app.post('/api/upload', multipartyMiddleware, (req, res, next) => {
         Promise.all(req.files.files.map(file => new Promise((resolve, reject) => {
