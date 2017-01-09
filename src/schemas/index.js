@@ -10,7 +10,7 @@ const User = {
 
 const Database = {
     id: ObjectId,
-    description: String,
+    name: String,
     engine: String,
     url: String,
     user: String,
@@ -28,9 +28,9 @@ const Category = {
 };
 
 
-const Exercise = {
+const Task = {
     id: ObjectId,
-    title: String,
+    name: String,
     description: String,
     correctQuery: String,
     engineDB: Object,
