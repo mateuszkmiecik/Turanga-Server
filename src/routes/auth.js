@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const USER_ROLES = require('../constants').USER_ROLES;
 
 const secretKey = require('../../config/config').secret;
 const authMiddleware = require('../middlewares/auth-middleware');
@@ -42,6 +43,42 @@ module.exports = (mongoClient) => {
             }).catch(next);
 
     });
+
+    app.post('/register', (req, res, next) => {
+        let usersData = req.body;
+
+        if(!usersData.username || !usersData.password || !usersData.displayName){
+            return next({
+                status: 400,
+                message: 'Provide username and password.'
+            })
+        }
+
+        let sha256 = crypto.createHash('sha256');
+        let hashedPassword = sha256.update(usersData.password).digest('hex');
+
+        let newUsersData = {
+            username: usersData.username,
+            password: hashedPassword,
+            name: usersData.displayName,
+            role: 'USER'
+        }
+
+        mongoClient.collection('users').findOneAndUpdate(
+            {username: newUsersData.username, deleted : null}, {
+                $setOnInsert: newUsersData
+            }, {upsert: true})
+            .then(mongoRes => {
+                if(!!mongoRes.value){
+                    return res.status(409).send({message: 'User already exists.'})
+                }
+                res.status(201).send({
+                    message: 'New user created.'
+                });
+            })
+            .catch(next);
+
+    })
 
     return app;
 
