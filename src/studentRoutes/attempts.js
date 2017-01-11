@@ -83,7 +83,7 @@ module.exports = (mongoClient) => {
                     "taskId": task.taskId,
                     "date": Date.now(),
                     "query": queryRequest.query,
-                    "correct": resp.body.correct
+                    "correct": !!resp ? resp.body.correct : false
                 })
 
                 let idToReplace = attempt._id;
