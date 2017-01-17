@@ -121,7 +121,10 @@ module.exports = (mongoClient) => {
                     attempt.finished = true
                 }
             }
-            attempt.tasks = attempt.tasks.map(({taskId, name, description, requiredWords, forbiddenWords}) => ({taskId, name, description, requiredWords, forbiddenWords}))
+            attempt.tasks = attempt.tasks.map(({taskId, name, description, engineDB, requiredWords, forbiddenWords}) => ({taskId, name, description, engineDB, requiredWords, forbiddenWords}))
+            attempt.tasks.forEach(el => {
+                el.engineDB = el.engineDB.map(({name, dbEngine}) => ({name, dbEngine}));
+            })
             res.status(200).send(attempt);
         })
     });

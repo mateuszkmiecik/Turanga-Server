@@ -1,8 +1,10 @@
 const express = require('express');
 const ObjectId = require('mongodb').ObjectId;
 
-module.exports = (dbCollection) => {
+module.exports = (mongoClient) => {
     let app = express();
+    let dbCollection = mongoClient.collection('databases');
+    let catCollection = mongoClient.collection('categories');
 
     app.get('/', (req, res, next) => {
         dbCollection.find({deleted: null}).toArray()
@@ -61,6 +63,11 @@ module.exports = (dbCollection) => {
         dbCollection.findOneAndUpdate({
             _id : new ObjectId(req.params.id)
         }, {$set : updatedDB}, {returnOriginal : false}).then(results => {
+            catCollection.find({
+                deleted : null,
+            }).toArray().then(cats => {
+
+            })
             return res.status(200).send({message: 'updated'});
         }).catch(next);
     })

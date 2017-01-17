@@ -71,7 +71,7 @@ module.exports = (mongoClient) => {
 
     app.use('/api/users',  require('./routes/users')(mongoClient.collection('users')));
     app.use('/api/groups', require('./routes/groups')(mongoClient));
-    app.use('/api/databases', require('./routes/databases')(mongoClient.collection('databases')));
+    app.use('/api/databases', require('./routes/databases')(mongoClient));
 
     app.use('/api/categories', require('./routes/categories')(mongoClient.collection('categories')));
     app.use('/api/exams', require('./routes/exams')(mongoClient.collection('exams')));
