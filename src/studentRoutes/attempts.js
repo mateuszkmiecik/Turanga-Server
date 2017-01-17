@@ -123,7 +123,7 @@ module.exports = (mongoClient) => {
             }
             attempt.tasks = attempt.tasks.map(({taskId, name, description, engineDB, requiredWords, forbiddenWords}) => ({taskId, name, description, engineDB, requiredWords, forbiddenWords}))
             attempt.tasks.forEach(el => {
-                el.engineDB = el.engineDB.map(({name, dbEngine}) => ({name, dbEngine}));
+                el.engineDB = el.engineDB.map(({name, dbEngine, schemeFile}) => ({name, dbEngine, schemeFile}));
             })
             res.status(200).send(attempt);
         })
