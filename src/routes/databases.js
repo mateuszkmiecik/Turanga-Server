@@ -83,15 +83,30 @@ module.exports = (mongoClient) => {
     })
 
     app.delete('/:id', (req, res, next) => {
-        dbCollection.findOneAndUpdate({
-            _id: new ObjectId(req.params.id)
-        }, {
-            $set: {
-                deleted: true
+        let flag = false;
+        catCollection.find({
+            deleted : null
+        }).toArray().then(cats => {
+            cats.forEach(cat => {
+                cat.tasks.forEach(task => {
+                    if (task.engineDB[0]._id == new ObjectId(req.params.id)) {
+                        flag = true;
+                        return res.status(409).send({message: 'Unable to delete db. There are tasks still using it.'})
+                    }
+                })
+            })
+            if (!flag) {
+                dbCollection.findOneAndUpdate({
+                    _id: new ObjectId(req.params.id)
+                }, {
+                    $set: {
+                        deleted: true
+                    }
+                }).then(result => {
+                    return res.status(200).send({message: 'deleted'});
+                }).catch(next);
             }
-        }).then(result => {
-            return res.status(200).send({message: 'deleted'});
-        }).catch(next);
+        })
     })
 
     return app;
