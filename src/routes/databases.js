@@ -91,7 +91,7 @@ module.exports = (mongoClient) => {
                 cat.tasks.forEach(task => {
                     if (task.engineDB[0]._id == new ObjectId(req.params.id)) {
                         flag = true;
-                        return res.status(409).send({message: 'Unable to delete db. There are tasks still using it.'})
+                        return res.status(304).send({message: 'Unable to delete db. There are tasks still using it.'})
                     }
                 })
             })
