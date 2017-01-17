@@ -62,11 +62,21 @@ module.exports = (mongoClient) => {
         delete updatedDB._id;
         dbCollection.findOneAndUpdate({
             _id : new ObjectId(req.params.id)
-        }, {$set : updatedDB}, {returnOriginal : false}).then(results => {
+        }, {$set : updatedDB}, {returnOriginal : false}).then(db => {
             catCollection.find({
                 deleted : null,
             }).toArray().then(cats => {
-
+                cats.forEach(cat => {
+                    cat.tasks.forEach(task => {
+                        if(task.engineDB[0]._id == new ObjectId(req.params.id)) {
+                            task.engineDB[0] = req.body;
+                            task.engineDB[0]._id = req.params.id;
+                        }
+                    });
+                    catCollection.findOneAndUpdate({
+                        _id : cat._id
+                    }, {$set : cat})
+                })
             })
             return res.status(200).send({message: 'updated'});
         }).catch(next);
